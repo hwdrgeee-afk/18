@@ -1,0 +1,103 @@
+@echo off
+title ULTRA EXTREME GAMING TWEAK (X3D + FIVEM)
+color 0c
+
+echo ===============================
+echo   EXTREME PERFORMANCE MODE
+echo ===============================
+timeout /t 2 >nul
+
+:: =========================
+:: 1. KILL HEAVY TASKS
+:: =========================
+echo [1] Killing background tasks...
+taskkill /f /im OneDrive.exe >nul 2>&1
+taskkill /f /im YourPhone.exe >nul 2>&1
+taskkill /f /im XboxAppServices.exe >nul 2>&1
+taskkill /f /im SearchApp.exe >nul 2>&1
+taskkill /f /im Widgets.exe >nul 2>&1
+
+:: =========================
+:: 2. DISABLE SERVICES
+:: =========================
+echo [2] Disabling services...
+set svcs=SysMain DiagTrack WSearch Fax MapsBroker WMPNetworkSvc XblGameSave XboxNetApiSvc TabletInputService RemoteRegistry PrintSpooler
+
+for %%s in (%svcs%) do (
+ sc stop %%s >nul 2>&1
+ sc config %%s start= disabled >nul 2>&1
+)
+
+:: =========================
+:: 3. ULTIMATE POWER
+:: =========================
+echo [3] Power plan tweak...
+powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61 >nul
+powercfg /setactive e9a42b02-d5df-448d-aa00-03f14749eb61 >nul
+
+powercfg /setacvalueindex scheme_current sub_processor PERFBOOSTMODE 0 >nul
+powercfg /setacvalueindex scheme_current sub_processor IDLEDISABLE 1 >nul
+
+:: =========================
+:: 4. MEMORY + CACHE
+:: =========================
+echo [4] Memory optimization...
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v LargeSystemCache /t REG_DWORD /d 0 /f >nul
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v DisablePagingExecutive /t REG_DWORD /d 1 /f >nul
+powershell -Command "Disable-MMAgent -mc" >nul 2>&1
+
+:: =========================
+:: 5. SYSTEM PROFILE
+:: =========================
+echo [5] Scheduler tweak...
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v NetworkThrottlingIndex /t REG_DWORD /d 4294967295 /f >nul
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v SystemResponsiveness /t REG_DWORD /d 0 /f >nul
+
+:: =========================
+:: 6. NETWORK LOW LATENCY
+:: =========================
+echo [6] Network tweak...
+netsh int tcp set global autotuninglevel=disabled >nul
+netsh int tcp set global rss=enabled >nul
+netsh int tcp set global chimney=enabled >nul
+netsh int tcp set global ecncapability=disabled >nul
+netsh int tcp set global timestamps=disabled >nul
+
+:: =========================
+:: 7. TIMER + HPET
+:: =========================
+echo [7] Timer tweak...
+bcdedit /deletevalue useplatformclock >nul 2>&1
+bcdedit /set disabledynamictick yes >nul 2>&1
+
+:: =========================
+:: 8. VISUAL OFF
+:: =========================
+echo [8] Disable visuals...
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /t REG_DWORD /d 2 /f >nul
+
+:: =========================
+:: 9. BACKGROUND APPS OFF
+:: =========================
+echo [9] Disable background apps...
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications" /v GlobalUserDisabled /t REG_DWORD /d 1 /f >nul
+
+:: =========================
+:: 10. TEMP CLEAN
+:: =========================
+echo [10] Cleaning temp...
+del /s /f /q %temp%\* >nul 2>&1
+del /s /f /q C:\Windows\Temp\* >nul 2>&1
+
+:: =========================
+:: 11. FIVEM PRIORITY BOOST
+:: =========================
+echo [11] Boosting FiveM...
+wmic process where name="FiveM.exe" CALL setpriority "high priority" >nul 2>&1
+
+:: =========================
+:: DONE
+:: =========================
+echo.
+echo DONE!!! RESTART NOW
+pause
